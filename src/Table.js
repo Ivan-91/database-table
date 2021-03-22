@@ -4,6 +4,7 @@ import {useState, useEffect} from 'react'
 import preloader from './preloader/preloader.gif'
 import UserTable from './UserTable'
 import styles from './Table.module.css'
+import _  from 'lodash'
 
 
 
@@ -105,9 +106,11 @@ function MyTable() {
   let sortedData = (keyId) => {
     let copyUsers = users.concat();
     if (sortDirection === true) {
-      copyUsers.sort((a, b) => (a[keyId] > b[keyId] ? 1 : -1));
+      //copyUsers.sort((a, b) => (a[keyId] > b[keyId] ? 1 : -1));
+      copyUsers = _.orderBy(copyUsers, keyId, 'asc')
     } else {
-      copyUsers.sort((a, b) => (a[keyId] > b[keyId] ? -1 : 1));
+      copyUsers = _.orderBy(copyUsers, keyId, 'desc')
+      //copyUsers.sort((a, b) => (a[keyId] > b[keyId] ? -1 : 1));
     }
     setusers(copyUsers);
     setsortDirection(!sortDirection);
