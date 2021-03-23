@@ -1,10 +1,11 @@
 import axios from "axios";
 import React from "react";
+
 import {useState, useEffect} from 'react'
 import preloader from './preloader/preloader.gif'
 import UserTable from './UserTable'
-import styles from './Table.module.css'
 import _  from 'lodash'
+import Paginator from "./Paginator";
 
 
 
@@ -18,43 +19,30 @@ function MyTable() {
   const [loading, setloading] = useState(true);
   const [sortDirection, setsortDirection] = useState(true)
   const [keyId, setKeyId] = useState('')
+  const [itemsCount, setitemsCount] = useState(100)
 
+  const pageSize = 5
+
+  //loading data
+  useEffect(() => {
+    axios.get(`${baseURL}?_page=${currentPage}&_limit=${pageSize}`).then((res) => {
+      setusers(res.data);
+      setloading(false);
+      
+    });
+  }, []);
 
   // change page
   let changePage = (pageNumber) => {
-    axios.get(`http://localhost:3000/items?_page=${pageNumber}`).then((res) => {
+    axios.get(`http://localhost:3000/items?_page=${pageNumber}&_limit=${pageSize}`).then((res) => {
       setusers(res.data);
       setcurrentPage(pageNumber);
     });
     console.log("page must be change");
   };
 
-  let Paginator = (props) => {
-    const { _page, _limit = 10, itemsCount = 100 } = props;
+  
 
-    let pagesCount = Math.ceil(itemsCount / _limit);
-    let pages = [];
-
-    for (let i = 1; i <= pagesCount; i++) {
-      pages.push(i);
-    }
-
-    return (
-      <a>
-        {pages.map((p) => {
-          return (
-            <span
-              key={p}
-              onClick={() => changePage(p)}
-              className={currentPage === p ? styles.selectedPage : undefined}
-            >
-              {" "}{p}{" "}
-            </span>
-          );
-        })}
-      </a>
-    );
-  };
 
   // filtration
   let Filtration = () => {
@@ -117,13 +105,7 @@ function MyTable() {
     setKeyId(keyId)
   };
 
-   //loading data
-  useEffect(() => {
-    axios.get(baseURL).then((res) => {
-      setusers(res.data);
-      setloading(false);
-    });
-  }, []);
+   
 
   return (
     <div>
@@ -134,7 +116,8 @@ function MyTable() {
           <p>...loading</p>
         </div>
       )}
-      <Paginator />
+      <Paginator changePage={changePage} pageSize={pageSize} currentPage={currentPage} itemsCount={itemsCount} />
+      
       <Filtration />
       <UserTable sortedData = {sortedData} 
                  Direction = {Direction}
