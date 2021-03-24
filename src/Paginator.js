@@ -19,7 +19,7 @@ let Paginator = (props) => {
   let rightPage = portionSize*portionNumber
 
   return (
-    <a>
+    
       
 
 
@@ -48,7 +48,7 @@ let Paginator = (props) => {
   </ul>
 </nav>
 
-    </a>
+    
   );
 };
 

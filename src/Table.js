@@ -20,6 +20,7 @@ function MyTable() {
   const [sortDirection, setsortDirection] = useState(true)
   const [keyId, setKeyId] = useState('')
   const [itemsCount, setitemsCount] = useState(100)
+  const [allusers, setallusers] = useState([])
 
   const pageSize = 5
 
@@ -27,9 +28,9 @@ function MyTable() {
   useEffect(() => {
     axios.get(`${baseURL}?_page=${currentPage}&_limit=${pageSize}`).then((res) => {
       setusers(res.data);
-      setloading(false);
-      
-    });
+      setloading(false);      
+    })
+    .then(axios.get(baseURL).then( res=>setallusers(res.data)))
   }, []);
 
   // change page
@@ -54,22 +55,39 @@ function MyTable() {
     }
 
     return (
-      <a> search on page
-      <input value={value} onChange={onChange}></input>
-      <button onClick={()=>searchRows(value)} >GO</button>
-      </a>
+      <form class="form-inline">
+<a class="input-group mb-3">
+  <input value={value} onChange={onChange} type="text" class="form-control" placeholder="Search" aria-label="Search" aria-describedby="button-addon2"/>
+  <button onClick={()=>searchRows(value)}  class="btn btn-outline-secondary" type="button" id="button-addon2">Button</button>
+</a>
+
+      </form>
+      
     )
   }
 
-  function filterObjects(objects, filter) {
+  let searchRows = (val) => {
+    if (!val) {
+      setusers(users);
+      console.log(users);
+    } else {
+      console.log(allusers);
+      let copyUsers = allusers.concat();
+      let filteredUsers = filterObjects(copyUsers, val);
+      setusers(filteredUsers);
+      console.log(filteredUsers);
+    }
+  };
+  
+  let filterObjects=(objects, filter) => {
     filter = filter.toLowerCase();
-    var filtered = [];
-    var keys = Object.keys(objects);
-    for (var i = 0; i < keys.length; i++) {
-        var key = keys[i];
+    let filtered = [];
+    let keys = Object.keys(objects);
+    for (let i = 0; i < keys.length; i++) {
+        let key = keys[i];
         if (objects.hasOwnProperty(key) === true) {
-            var object = objects[key];
-            var objectAsString = JSON.stringify(object).toLowerCase();
+            let object = objects[key];
+            let objectAsString = JSON.stringify(object).toLowerCase();
             if (key.toLowerCase().indexOf(filter) > -1 || objectAsString.indexOf(filter) > -1) {
                 filtered[key] = object;
             }
@@ -78,11 +96,7 @@ function MyTable() {
     return filtered;
 }
 
-  let searchRows = (val) => {
-    let copyUsers = users.concat()
-    let filteredUsers = filterObjects(copyUsers, val)
-    setusers(filteredUsers)
-  }
+
 
   // sorting direction display
   let Direction = () => {
@@ -116,7 +130,10 @@ function MyTable() {
           <p>...loading</p>
         </div>
       )}
-      <Paginator changePage={changePage} pageSize={pageSize} currentPage={currentPage} itemsCount={itemsCount} />
+      <Paginator  changePage={changePage} 
+                  pageSize={pageSize} 
+                  currentPage={currentPage} 
+                  itemsCount={itemsCount} />
       
       <Filtration />
       <UserTable sortedData = {sortedData} 
